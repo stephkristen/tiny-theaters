@@ -42,6 +42,7 @@ select * from ticket;
 
 drop table all_tiny_theaters;
 
+
 -- UPDATES
 
 -- The Little Fitz's 2021-03-01 performance of The Sky Lit Up is listed with a $20 ticket price. 
@@ -89,19 +90,23 @@ from (select * from customer where first_name = 'Jammie' and last_name = 'Swindl
 
 select * from customer where first_name = 'Jammie' and last_name = 'Swindles';
 
+
 -- DELETES
 
 -- Delete all single-ticket reservations at the 10 Pin. (You don't have to do it with one query.)
 
-delete from ticket
-where performance_id = (select performance_id
-from (select * from performance where theater_id = (select theater_id
-from (select * from theater where name = '10 Pin') as temp)) as temp2);
+delete t from ticket t
+inner join performance p on t.performance_id = p.performance_id
+inner join theater th on p.theater_id = th.theater_id
+where th.name = '10 Pin';
 
-delete from performance
-where theater_id = (select theater_id
-from (select * from theater where name = '10 Pin') as temp);
 
+select c.first_name, p.name, th.name
+from ticket t
+inner join performance p on t.performance_id = p.performance_id
+inner join theater th on p.theater_id = th.theater_id
+inner join customer c on t.customer_id = c.customer_id
+where p.name = '10 Pin';
 
 
 -- Delete the customer Liv Egle of Germany. It appears their reservations were an elaborate joke.
@@ -123,6 +128,5 @@ where first_name = 'Liv' and last_name = 'Egle of Germany';
 
 
 
-    
     
     
