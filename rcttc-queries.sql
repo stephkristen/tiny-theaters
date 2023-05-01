@@ -72,11 +72,10 @@ group by th.name;
 
 -- Who is the biggest supporter of RCTTC? Who spent the most in 2021?
 
-select c.first_name
-from ticket t
-where customer_id = ();
-
-select c.first_name, count(t.ticket_id) ticket_count
+select c.first_name, sum(p.ticket_price) total_spent
 from ticket t
 inner join customer c on t.customer_id = c.customer_id
-order by ticket_count;
+inner join performance p on t.performance_id = p.performance_id
+group by c.first_name
+order by total_spent desc
+limit 1;

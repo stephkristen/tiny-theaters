@@ -59,6 +59,25 @@ select * from performance where name = 'The Sky Lit Up' and date = '2021-03-01';
 -- Adjust seating so all groups are seated together in a row. This may require updates to all reservations for that performance. 
 -- Confirm that no seat is double-booked and that everyone who has a ticket is as close to their original seat as possible.
 
+-- I'm not sure if this was the best way to do this, I was a bit confused on how they can stay close
+-- to their original seats and keeps Cullen and Pooh guests in same row
+
+update ticket
+set seat_name = 'B4'
+where seat_name = 'A4' and performance_id = 5;
+
+update ticket
+set seat_name = 'A4'
+where seat_name = 'C2' and performance_id = 5;
+
+update ticket
+set seat_name = 'C2'
+where seat_name = 'B4' and performance_id = 5
+and customer_id = (select customer_id
+from (select * from customer where first_name = 'Cullen' and last_name = 'Guirau') as temp);
+
+select * from ticket where performance_id = 5
+order by seat_name;
 
 
 -- Update Jammie Swindles's phone number from "801-514-8648" to "1-801-EAT-CAKE".
@@ -77,12 +96,11 @@ select * from customer where first_name = 'Jammie' and last_name = 'Swindles';
 delete from ticket
 where performance_id = (select performance_id
 from (select * from performance where theater_id = (select theater_id
-from (select * from theater where name = '10 Pin') as temp) as temp));
+from (select * from theater where name = '10 Pin') as temp)) as temp2);
 
 delete from performance
 where theater_id = (select theater_id
 from (select * from theater where name = '10 Pin') as temp);
-
 
 
 
