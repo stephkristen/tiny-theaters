@@ -59,20 +59,24 @@ group by c.first_name;
 
 -- Calculate the total revenue per show based on tickets sold.
 
-select name, sum(ticket_price)
-from performance
-group by name;
+select p.name, p.date, p.ticket_price * count(t.ticket_id) as total_revenue
+from performance p
+inner join ticket t on p.performance_id = t.performance_id
+group by p.performance_id;
+
 
 -- Calculate the total revenue per theater based on tickets sold.
 
-select th.name, sum(p.ticket_price)
-from performance p
-left outer join theater th on p.theater_id = th.theater_id
-group by th.name;
+select th.name, p.ticket_price * count(t.ticket_id) as total_revenue
+from theater th
+inner join performance p on th.theater_id = p.theater_id
+inner join ticket t on p.performance_id = t.performance_id
+group by p.performance_id;
+
 
 -- Who is the biggest supporter of RCTTC? Who spent the most in 2021?
 
-select c.first_name, sum(p.ticket_price) total_spent
+select c.first_name, sum(p.ticket_price) as total_spent
 from ticket t
 inner join customer c on t.customer_id = c.customer_id
 inner join performance p on t.performance_id = p.performance_id

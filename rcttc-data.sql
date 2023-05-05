@@ -65,21 +65,25 @@ select * from performance where name = 'The Sky Lit Up' and date = '2021-03-01';
 
 update ticket
 set seat_name = 'B4'
-where seat_name = 'A4' and performance_id = 5;
+where seat_name = 'A4' and performance_id = 
+	(select distinct performance_id from performance where name = 'The Sky Lit Up' and date = '2021-03-01');
 
 update ticket
 set seat_name = 'A4'
-where seat_name = 'C2' and performance_id = 5;
+where seat_name = 'C2' and performance_id =
+	(select distinct performance_id from performance where name = 'The Sky Lit Up' and date = '2021-03-01');
 
 update ticket
 set seat_name = 'C2'
-where seat_name = 'B4' and performance_id = 5
-and customer_id = (select customer_id
-from (select * from customer where first_name = 'Cullen' and last_name = 'Guirau') as temp);
+where seat_name = 'B4' and performance_id = 
+		(select distinct performance_id from performance where name = 'The Sky Lit Up' and date = '2021-03-01')
+	and customer_id = 
+		(select customer_id
+		from (select * from customer where first_name = 'Cullen' and last_name = 'Guirau') as temp);
 
-select * from ticket where performance_id = 5
-order by seat_name;
-
+select * from ticket where performance_id = 
+	(select distinct performance_id from performance where name = 'The Sky Lit Up' and date = '2021-03-01')
+	order by seat_name;
 
 -- Update Jammie Swindles's phone number from "801-514-8648" to "1-801-EAT-CAKE".
 
@@ -95,11 +99,17 @@ select * from customer where first_name = 'Jammie' and last_name = 'Swindles';
 
 -- Delete all single-ticket reservations at the 10 Pin. (You don't have to do it with one query.)
 
-delete t from ticket t
-inner join performance p on t.performance_id = p.performance_id
-inner join theater th on p.theater_id = th.theater_id
-where th.name = '10 Pin';
+set sql_safe_updates = 0;
 
+delete from ticket
+where customer_id IN
+	(select customer_id from (select customer_id from ticket t
+	inner join performance p on t.performance_id = p.performance_id
+	inner join theater th on p.theater_id = th.theater_id
+    where th.name = 'Horizon'
+	group by t.customer_id having count(customer_id) < 2) as temp);
+    
+set sql_safe_updates = 1;    
 
 select c.first_name, p.name, th.name
 from ticket t
